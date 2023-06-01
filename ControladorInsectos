@@ -1,0 +1,60 @@
+package org.example.controlador;
+
+import org.example.modelo.Insectos;
+import org.example.modelo.ModeloTablaInsectos;
+import org.example.vista.VentanaInsecto;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.MalformedURLException;
+
+//Esta clase gestiona los eventos
+public class ControladorInsectos extends MouseAdapter {
+    //necesitamos declarar la vista, con su constructor
+    private VentanaInsecto view;
+    private ModeloTablaInsectos modelo;
+    public ControladorInsectos(VentanaInsecto view) {
+        this.view = view;
+        //Vamos a crear los eventos de la tabla, el boton agregar y que al presionar la tabla muestre la foto, del tipo mousecliked
+        this.view.getBotonAdd().addMouseListener(this);
+        this.view.getTabla().addMouseListener(this);
+        modelo = new ModeloTablaInsectos();
+        this.view.getTabla().setModel(modelo);
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        //si el evento viene desde boton add
+       if(e.getSource()== view.getBotonAdd()){
+            System.out.println("Evento sobre boton add");
+           Insectos insecto = new Insectos();
+           //estamos accediendo a lo que el usuario escribió
+           insecto.setID(Integer.parseInt(this.view.getTxtID().getText()));
+           insecto.setNombre(this.view.getTxtNombre().getText());
+           insecto.setTipo(this.view.getTxtTipo().getText());
+           insecto.setTamano(Double.parseDouble(this.view.getTxtTamano().getText()));
+           insecto.setAlimentacion(this.view.getTxtAlimentacion().getText());
+           insecto.setUrl(this.view.getTxtUrl().getText());
+           //Vamos a mandar el objeto creado anteriormente al modelo
+           modelo.agregarInsecto(insecto);
+           this.view.getTabla().updateUI();
+        }
+        //si el evento viene desde la tabla
+       if(e.getSource()== view.getTabla()){
+            System.out.println("Evento sobre tabla ");
+            //Averiguamos que elemento de la tabla esta selecionado con getSelectedRow
+           int index = this.view.getTabla().getSelectedRow();
+           //pedimos que nos regrese, con un objeto temporal
+           Insectos tmp =modelo.getInsectoAtIndex(index);
+           try{
+               this.view.getImagenInsecto().setIcon(tmp.getImagen());
+               this.view.getImagenInsecto().setText("");
+           }catch ( MalformedURLException mfue){
+               System.out.println(e.toString());
+           }
+
+        }
+    }
+
+}
